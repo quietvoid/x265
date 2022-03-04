@@ -282,7 +282,7 @@ protected:
 #endif
     void collectDynDataFrame();
     void computeAvgTrainingData();
-    void collectDynDataRow(CUData& ctu, FrameStats* rowStats);    
+    void collectDynDataRow(CUData& ctu, FrameStats* rowStats);
     void readModel(FilmGrainCharacteristics* m_filmGrain, FILE* filmgrain);
 };
 }

@@ -2352,7 +2352,7 @@ char *x265_param2string(x265_param* p, int padx, int pady)
     s += sprintf(s, " decoder-max-rate=%d", p->decoderVbvMaxRate);
     BOOL(p->bliveVBV2pass, "vbv-live-multi-pass");
     if (p->filmGrain)
-        s += sprintf(s, " film-grain=%s", p->filmGrain); // Film grain characteristics model filename
+        s += sprintf(s, " film-grain=%d", !!p->filmGrain); // Film grain characteristics present
     BOOL(p->bEnableTemporalFilter, "mcstf");
 #undef BOOL
     return buf;
