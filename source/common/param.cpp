@@ -2208,8 +2208,13 @@ char *x265_param2string(x265_param* p, int padx, int pady)
     s += sprintf(s, " selective-sao=%d", p->selectiveSAO);
     BOOL(p->bEnableEarlySkip, "early-skip");
     BOOL(p->recursionSkipMode, "rskip");
-    if (p->recursionSkipMode == EDGE_BASED_RSKIP)
-        s += sprintf(s, " rskip-edge-threshold=%f", p->edgeVarThreshold);
+
+    if (p->recursionSkipMode) {
+        s += sprintf(s, " rskip-mode=%d", p->recursionSkipMode);
+
+        if (p->recursionSkipMode == EDGE_BASED_RSKIP)
+            s += sprintf(s, " rskip-edge-threshold=%f", p->edgeVarThreshold);
+    }
 
     BOOL(p->bEnableFastIntra, "fast-intra");
     BOOL(p->bEnableTSkipFast, "tskip-fast");
