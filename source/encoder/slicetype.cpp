@@ -186,35 +186,31 @@ void edgeFilter(Frame *curFrame, x265_param* param)
     src = (pixel*)curFrame->m_fencPic->m_picOrg[0];
     refPic = curFrame->m_gaussianPic + curFrame->m_fencPic->m_lumaMarginY * stride + curFrame->m_fencPic->m_lumaMarginX;
     edgePic = curFrame->m_edgePic + curFrame->m_fencPic->m_lumaMarginY * stride + curFrame->m_fencPic->m_lumaMarginX;
-    pixel pixelValue = 0;
 
-    for (int rowNum = 0; rowNum < height; rowNum++)
+    /*  5x5 Gaussian filter
+        [2   4   5   4   2]
+     1  [4   9   12  9   4]
+    --- [5   12  15  12  5]
+    159 [4   9   12  9   4]
+        [2   4   5   4   2]*/
+
+    for (int rowNum = 2; rowNum < height - 2; rowNum++)
     {
-        for (int colNum = 0; colNum < width; colNum++)
+        for (int colNum = 2; colNum < width - 2; colNum++)
         {
-            if ((rowNum >= 2) && (colNum >= 2) && (rowNum < height - 2) && (colNum < width - 2)) //Ignoring the border pixels of the picture
-            {
-                /*  5x5 Gaussian filter
-                    [2   4   5   4   2]
-                 1  [4   9   12  9   4]
-                --- [5   12  15  12  5]
-                159 [4   9   12  9   4]
-                    [2   4   5   4   2]*/
+            const intptr_t rowOne = (rowNum - 2) * stride, colOne = colNum - 2;
+            const intptr_t rowTwo = (rowNum - 1) * stride, colTwo = colNum - 1;
+            const intptr_t rowThree = rowNum * stride, colThree = colNum;
+            const intptr_t rowFour = (rowNum + 1) * stride, colFour = colNum + 1;
+            const intptr_t rowFive = (rowNum + 2) * stride, colFive = colNum + 2;
+            const intptr_t index = (rowNum * stride) + colNum;
 
-                const intptr_t rowOne = (rowNum - 2)*stride, colOne = colNum - 2;
-                const intptr_t rowTwo = (rowNum - 1)*stride, colTwo = colNum - 1;
-                const intptr_t rowThree = rowNum * stride, colThree = colNum;
-                const intptr_t rowFour = (rowNum + 1)*stride, colFour = colNum + 1;
-                const intptr_t rowFive = (rowNum + 2)*stride, colFive = colNum + 2;
-                const intptr_t index = (rowNum*stride) + colNum;
-
-                pixelValue = ((2 * src[rowOne + colOne] + 4 * src[rowOne + colTwo] + 5 * src[rowOne + colThree] + 4 * src[rowOne + colFour] + 2 * src[rowOne + colFive] +
-                    4 * src[rowTwo + colOne] + 9 * src[rowTwo + colTwo] + 12 * src[rowTwo + colThree] + 9 * src[rowTwo + colFour] + 4 * src[rowTwo + colFive] +
-                    5 * src[rowThree + colOne] + 12 * src[rowThree + colTwo] + 15 * src[rowThree + colThree] + 12 * src[rowThree + colFour] + 5 * src[rowThree + colFive] +
-                    4 * src[rowFour + colOne] + 9 * src[rowFour + colTwo] + 12 * src[rowFour + colThree] + 9 * src[rowFour + colFour] + 4 * src[rowFour + colFive] +
-                    2 * src[rowFive + colOne] + 4 * src[rowFive + colTwo] + 5 * src[rowFive + colThree] + 4 * src[rowFive + colFour] + 2 * src[rowFive + colFive]) / 159);
-                refPic[index] = pixelValue;
-            }
+            refPic[index] = ((2 * src[rowOne + colOne] + 4 * src[rowOne + colTwo] + 5 * src[rowOne + colThree] + 4 * src[rowOne + colFour] + 2 * src[rowOne + colFive] +
+                                4 * src[rowTwo + colOne] + 9 * src[rowTwo + colTwo] + 12 * src[rowTwo + colThree] + 9 * src[rowTwo + colFour] + 4 * src[rowTwo + colFive] +
+                                5 * src[rowThree + colOne] + 12 * src[rowThree + colTwo] + 15 * src[rowThree + colThree] + 12 * src[rowThree + colFour] + 5 * src[rowThree + colFive] +
+                                4 * src[rowFour + colOne] + 9 * src[rowFour + colTwo] + 12 * src[rowFour + colThree] + 9 * src[rowFour + colFour] + 4 * src[rowFour + colFive] +
+                                2 * src[rowFive + colOne] + 4 * src[rowFive + colTwo] + 5 * src[rowFive + colThree] + 4 * src[rowFive + colFour] + 2 * src[rowFive + colFive]) /
+                                159);
         }
     }
 
