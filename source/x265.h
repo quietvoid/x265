@@ -1416,6 +1416,15 @@ typedef struct x265_param
         /* Sets the bias towards dark scenes in AQ modes 3 and 5. */
         double    aqBiasStrength;
 
+        /* Use QP offset determined by aq-mode 1 (uniform AQ) as hard upper limit on
+         * QP offset allowed in aq-mode 2-5. This (might) help in scenes with large
+         * complexity differences among blocks.  Default: disabled */
+        int       limitAq1;
+
+        /* Sets the aq-strength aq-mode 1 when limit-aq1 is enabled. Valid only if
+         * limit-aq1 is enabled. Default value: 1.0. Acceptable values between 0.0 and 3.0 */
+        double    limitAq1Strength;
+
         /* Delta QP range by QP adaptation based on a psycho-visual model.
          * Acceptable values between 1.0 to 6.0 */
         double    qpAdaptationRange;

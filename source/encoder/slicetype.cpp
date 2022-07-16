@@ -519,6 +519,7 @@ void LookaheadTLD::calcAdaptiveQuantFrame(Frame *curFrame, x265_param* param)
                 double avg_adj_pow2 = 0, avg_adj = 0, qp_adj = 0;
                 double bias_strength = 0.f;
                 double strength = 0.f;
+                double limit_aq1_strength = 0.f;
 
                 if (param->rc.aqMode == X265_AQ_EDGE || param->rc.aqMode == X265_AQ_EDGE_BIASED)
                     edgeFilter(curFrame, param);
@@ -571,6 +572,11 @@ void LookaheadTLD::calcAdaptiveQuantFrame(Frame *curFrame, x265_param* param)
                     strength = param->rc.aqStrength * avg_adj;
                     avg_adj = avg_adj - 0.5f * (avg_adj_pow2 - modeTwoConst) / avg_adj;
                     bias_strength = param->rc.aqBiasStrength * param->rc.aqStrength;
+
+                    if (param->rc.limitAq1)
+                    {
+                        limit_aq1_strength = param->rc.limitAq1Strength * 1.0397f;
+                    }
                 }
                 else
                     strength = param->rc.aqStrength * 1.0397f;
@@ -584,11 +590,24 @@ void LookaheadTLD::calcAdaptiveQuantFrame(Frame *curFrame, x265_param* param)
                         {
                             qp_adj = curFrame->m_lowres.qpCuTreeOffset[blockXY];
                             qp_adj = strength * (qp_adj - avg_adj) + bias_strength * (1.f - modeTwoConst / (qp_adj * qp_adj));
+
+                            if (param->rc.limitAq1) {
+                                uint32_t energy = acEnergyCu(curFrame, blockX, blockY, param->internalCsp, param->rc.qgSize);
+                                double aq1_qp_adj = limit_aq1_strength * (X265_LOG2(X265_MAX(energy, 1)) - (modeOneConst + 2 * (X265_DEPTH - 8)));
+                                qp_adj = X265_MIN(qp_adj, aq1_qp_adj);
+                            }
                         }
                         else if (param->rc.aqMode == X265_AQ_AUTO_VARIANCE)
                         {
                             qp_adj = curFrame->m_lowres.qpCuTreeOffset[blockXY];
                             qp_adj = strength * (qp_adj - avg_adj);
+
+                            if (param->rc.limitAq1) {
+                                uint32_t energy = acEnergyCu(curFrame, blockX, blockY, param->internalCsp, param->rc.qgSize);
+                                double aq1_qp_adj = limit_aq1_strength * (X265_LOG2(X265_MAX(energy, 1)) - (modeOneConst + 2 * (X265_DEPTH - 8)));
+                                qp_adj = X265_MIN(qp_adj, aq1_qp_adj);
+                            }
+
                         }
                         else if (param->rc.aqMode == X265_AQ_EDGE)
                         {
@@ -598,6 +617,12 @@ void LookaheadTLD::calcAdaptiveQuantFrame(Frame *curFrame, x265_param* param)
                                 qp_adj = ((strength + AQ_EDGE_BIAS) * (qp_adj - avg_adj));
                             else
                                 qp_adj = strength * (qp_adj - avg_adj);
+
+                            if (param->rc.limitAq1) {
+                                uint32_t energy = acEnergyCu(curFrame, blockX, blockY, param->internalCsp, param->rc.qgSize);
+                                double aq1_qp_adj = limit_aq1_strength * (X265_LOG2(X265_MAX(energy, 1)) - (modeOneConst + 2 * (X265_DEPTH - 8)));
+                                qp_adj = X265_MIN(qp_adj, aq1_qp_adj);
+                            }
                         }
                         else if (param->rc.aqMode == X265_AQ_EDGE_BIASED)
                         {
@@ -609,6 +634,12 @@ void LookaheadTLD::calcAdaptiveQuantFrame(Frame *curFrame, x265_param* param)
                             else
                                 qp_adj = strength * (qp_adj - avg_adj);
                             qp_adj += dark_bias;
+
+                            if (param->rc.limitAq1) {
+                                uint32_t energy = acEnergyCu(curFrame, blockX, blockY, param->internalCsp, param->rc.qgSize);
+                                double aq1_qp_adj = limit_aq1_strength * (X265_LOG2(X265_MAX(energy, 1)) - (modeOneConst + 2 * (X265_DEPTH - 8)));
+                                qp_adj = X265_MIN(qp_adj, aq1_qp_adj);
+                            }
                         }
                         else
                         {

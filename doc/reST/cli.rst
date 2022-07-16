@@ -1767,6 +1767,21 @@ Quality, rate control and rate distortion options
 	their unbiased counterparts (2 and 4).
 	Default 1.0.
 
+.. option:: --limit-aq1, --no-limit-aq1
+
+	Use QP offset determined by aq-mode 1 (uniform AQ) as hard upper limit on QP offset allowed in aq-mode 2-5.
+    This (might) help in scenes with large complexity differences among blocks.
+
+	Default disabled.
+
+.. option:: --limit-aq1-strength <float>
+
+	Sets the aq-strength aq-mode 1 when limit-aq1 is enabled.
+	Valid only if :option:`limit-aq1`` is enabled.
+
+	Default 1.0.
+	**Range of values:** 1.0 to 3.0
+
 .. option:: --sbrc --no-sbrc
 
 	To enable and disable segment based rate control.
