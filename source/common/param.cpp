@@ -2368,6 +2368,7 @@ char *x265_param2string(x265_param* p, int padx, int pady)
     BOOL(p->bliveVBV2pass, "vbv-live-multi-pass");
     if (p->filmGrain)
         s += sprintf(s, " film-grain=%d", !!p->filmGrain); // Film grain characteristics present
+    BOOL(p->rc.frameSegment, "sbrc");
     BOOL(p->bEnableTemporalFilter, "mcstf");
 #undef BOOL
     return buf;

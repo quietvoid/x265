@@ -293,6 +293,8 @@ void Lowres::destroy(x265_param* param)
     X265_FREE(qpAqMotionOffset);
     if (param->bDynamicRefine || param->bEnableFades)
         X265_FREE(blockVariance);
+    if (param->rc.frameSegment)
+        X265_FREE(lowresEdgePlane);
 
     if (maxAQDepth > 0)
     {
