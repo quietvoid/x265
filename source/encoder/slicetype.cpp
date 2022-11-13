@@ -1097,6 +1097,8 @@ Lookahead::Lookahead(x265_param *param, ThreadPool* pool)
     m_countPreLookahead = 0;
 #endif
 
+    memset(m_histogram, 0, sizeof(m_histogram));
+
     m_accHistDiffRunningAvgCb = X265_MALLOC(uint32_t*, NUMBER_OF_SEGMENTS_IN_WIDTH * sizeof(uint32_t*));
     m_accHistDiffRunningAvgCb[0] = X265_MALLOC(uint32_t, NUMBER_OF_SEGMENTS_IN_WIDTH * NUMBER_OF_SEGMENTS_IN_HEIGHT);
     memset(m_accHistDiffRunningAvgCb[0], 0, sizeof(uint32_t) * NUMBER_OF_SEGMENTS_IN_WIDTH * NUMBER_OF_SEGMENTS_IN_HEIGHT);
@@ -2081,6 +2083,7 @@ void Lookahead::slicetypeDecide()
         list[bframes - 1]->m_lowres.bLastMiniGopBFrame = true;
     list[bframes]->m_lowres.leadingBframes = bframes;
     m_lastNonB = &list[bframes]->m_lowres;
+    m_histogram[bframes]++;
 
     /* insert a bref into the sequence */
     if (m_param->bBPyramid && bframes > 1 && !brefs)
