@@ -2767,6 +2767,10 @@ bool Lookahead::detectHistBasedSceneChange(Lowres **frames, int p0, int p1, int 
     Lowres  *currentFrame = frames[p1];
     Lowres  *futureFrame = frames[p2];
 
+    if (!futureFrame) {
+        return false;
+    }
+
     currentFrame->bHistScenecutAnalyzed = true;
 
     uint32_t **accHistDiffRunningAvgCb = m_accHistDiffRunningAvgCb;
